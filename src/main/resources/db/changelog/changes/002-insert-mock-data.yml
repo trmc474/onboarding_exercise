@@ -1,0 +1,49 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-insert-mock-data
+      author: developer
+      changes:
+        - insert:
+            tableName: person
+            columns:
+              - column: { name: first_name, value: "Michael" }
+              - column: { name: last_name, value: "Johnson" }
+              - column: { name: date_of_birth, value: "1985-03-15" }
+              - column: { name: tax_number, value: "123456789" }
+              - column: { name: tax_debt, valueNumeric: 0.00 }
+
+        - insert:
+            tableName: person
+            columns:
+              - column: { name: first_name, value: "Michelle" }
+              - column: { name: last_name, value: "Williams" }
+              - column: { name: date_of_birth, value: "1990-07-22" }
+              - column: { name: tax_number, value: "987654321" }
+              - column: { name: tax_debt, valueNumeric: 150.75 }
+
+        - insert:
+            tableName: person
+            columns:
+              - column: { name: first_name, value: "David" }
+              - column: { name: last_name, value: "Miller" }
+              - column: { name: date_of_birth, value: "1978-11-08" }
+              - column: { name: tax_number, value: "555666777" }
+              - column: { name: tax_debt, valueNumeric: 89.50 }
+
+        - insert:
+            tableName: person
+            columns:
+              - column: { name: first_name, value: "Sarah" }
+              - column: { name: last_name, value: "Mitchell" }
+              - column: { name: date_of_birth, value: "1996-01-12" }
+              - column: { name: tax_number, value: "111222333" }
+              - column: { name: tax_debt, valueNumeric: 0.00 }
+
+        - insert:
+            tableName: person
+            columns:
+              - column: { name: first_name, value: "John" }
+              - column: { name: last_name, value: "Smith" }
+              - column: { name: date_of_birth, value: "1982-09-30" }
+              - column: { name: tax_number, value: "444555666" }
+              - column: { name: tax_debt, valueNumeric: 250.00 }
