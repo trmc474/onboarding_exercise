@@ -1,4 +1,4 @@
-package com.netcompany.onboarding_exercise.templates;
+package com.netcompany.onboarding_exercise.exceptions;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

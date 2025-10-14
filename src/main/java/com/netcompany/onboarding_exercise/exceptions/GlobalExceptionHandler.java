@@ -1,6 +1,5 @@
 package com.netcompany.onboarding_exercise.exceptions;
 
-import com.netcompany.onboarding_exercise.templates.CustomErrorResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
