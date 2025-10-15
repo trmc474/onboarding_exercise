@@ -1,0 +1,4 @@
+### GET request to get person with "Mi" prefix and older than 30
+GET http://localhost:8080/api/persons/search/mi-over-30
+
+###

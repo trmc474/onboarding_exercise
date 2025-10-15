@@ -1,0 +1,12 @@
+### POST request to create person
+POST http://localhost:8080/api/persons
+Content-Type: application/json
+
+{
+  "firstName": "Cuong",
+  "lastName": "Tran",
+  "dateOfBirth": "2004-07-04",
+  "taxNumber": "123123123123"
+}
+
+###

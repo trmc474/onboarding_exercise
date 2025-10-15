@@ -3,6 +3,7 @@ package com.netcompany.onboarding_exercise.services;
 import com.netcompany.onboarding_exercise.dtos.PersonEventDto;
 import com.netcompany.onboarding_exercise.dtos.PersonRequestDto;
 import com.netcompany.onboarding_exercise.dtos.PersonResponseDto;
+import com.netcompany.onboarding_exercise.exceptions.MissingTaxNumberException;
 import com.netcompany.onboarding_exercise.exceptions.PersonNotFoundException;
 import com.netcompany.onboarding_exercise.exceptions.TaxNumberAlreadyExistsException;
 import com.netcompany.onboarding_exercise.kafka.PersonEventProducer;
@@ -33,6 +34,9 @@ public class PersonService {
         log.debug("Queueing create person with tax number '{}' to Kafka...", personRequestDto.getTaxNumber());
 
         // Validate before sending event
+        if (personRequestDto.getTaxNumber() == null) {
+            throw new MissingTaxNumberException("Tax number cannot be null or empty");
+        }
         if (personRepository.existsByTaxNumber(personRequestDto.getTaxNumber())) {
             throw new TaxNumberAlreadyExistsException(
                     "Person with tax number '" + personRequestDto.getTaxNumber() + "' already exists");
@@ -123,7 +127,8 @@ public class PersonService {
         // Validate before sending event
         Person existingPerson = personRepository.findById(id)
                 .orElseThrow(() -> new PersonNotFoundException("Person with ID '" + id + "' not found"));
-        if (!existingPerson.getTaxNumber().equals(personRequestDto.getTaxNumber())) {
+        if (personRequestDto.getTaxNumber() != null &&
+                !existingPerson.getTaxNumber().equals(personRequestDto.getTaxNumber())) {
             throw new IllegalArgumentException("Tax number cannot be updated");
         }
 

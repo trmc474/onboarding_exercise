@@ -1,7 +1,6 @@
 package com.netcompany.onboarding_exercise.dtos;
 
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -21,11 +20,9 @@ public class PersonRequestDto {
     @NotBlank(message = "Last name is required.")
     private String lastName;
 
-    @NotNull(message = "Date of birth is required.")
     @Past(message = "Date of birth must be in the past.")
     private LocalDate dateOfBirth;
 
-    @NotBlank(message = "Tax number is required.")
     @Size(min = 2, max = 12, message = "Tax number must be between 2 and 12 digits.")
     private String taxNumber;
 }

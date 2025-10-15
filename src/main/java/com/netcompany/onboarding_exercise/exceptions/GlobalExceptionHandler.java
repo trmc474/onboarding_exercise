@@ -38,6 +38,19 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(MissingTaxNumberException.class)
+    public ResponseEntity<CustomErrorResponse> handleMissingTaxNumberException(
+            MissingTaxNumberException exception
+    ) {
+        log.error("Missing tax number: {}", exception.getMessage());
+
+        // Create error response
+        CustomErrorResponse errorResponse =
+                new CustomErrorResponse(false, HttpStatus.BAD_REQUEST.value(), exception.getMessage());
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<CustomErrorResponse> handleIllegalArgumentException(IllegalArgumentException exception) {
         log.error("Illegal argument: {}", exception.getMessage());

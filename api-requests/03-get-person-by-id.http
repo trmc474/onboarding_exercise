@@ -1,0 +1,4 @@
+### GET request to get person by ID
+GET http://localhost:8080/api/persons/1
+
+###

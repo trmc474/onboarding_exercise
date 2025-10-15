@@ -1,0 +1,4 @@
+### GET request to get person by tax number
+GET http://localhost:8080/api/persons/tax-number/123456789
+
+###

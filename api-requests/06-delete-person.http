@@ -1,0 +1,4 @@
+### DELETE request to delete person
+DELETE http://localhost:8080/api/persons/5
+
+###

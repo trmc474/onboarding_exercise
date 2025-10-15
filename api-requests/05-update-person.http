@@ -1,0 +1,11 @@
+### PUT request to update person
+PUT http://localhost:8080/api/persons/1
+Content-Type: application/json
+
+{
+  "firstName": "Updated",
+  "lastName": "User",
+  "dateOfBirth": "2000-01-01"
+}
+
+###
