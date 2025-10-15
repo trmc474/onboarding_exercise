@@ -1,9 +1,11 @@
 package com.netcompany.onboarding_exercise.services;
 
+import com.netcompany.onboarding_exercise.dtos.PersonEventDto;
 import com.netcompany.onboarding_exercise.dtos.PersonRequestDto;
 import com.netcompany.onboarding_exercise.dtos.PersonResponseDto;
 import com.netcompany.onboarding_exercise.exceptions.PersonNotFoundException;
 import com.netcompany.onboarding_exercise.exceptions.TaxNumberAlreadyExistsException;
+import com.netcompany.onboarding_exercise.kafka.PersonEventProducer;
 import com.netcompany.onboarding_exercise.models.Person;
 import com.netcompany.onboarding_exercise.repositories.PersonRepository;
 import com.netcompany.onboarding_exercise.repositories.PersonSpecification;
@@ -24,23 +26,24 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class PersonService {
     private final PersonRepository personRepository;
+    private final PersonEventProducer personEventProducer;
 
     @Transactional
-    public PersonResponseDto createPerson(PersonRequestDto personRequestDto) {
-        log.debug("Creating person with tax number '{}'...", personRequestDto.getTaxNumber());
+    public void createPerson(PersonRequestDto personRequestDto) {
+        log.debug("Queueing create person with tax number '{}' to Kafka...", personRequestDto.getTaxNumber());
 
-        // Check if tax already exists
+        // Validate before sending event
         if (personRepository.existsByTaxNumber(personRequestDto.getTaxNumber())) {
             throw new TaxNumberAlreadyExistsException(
-                    "Person with tax number '" + personRequestDto.getTaxNumber() + "' already exists.");
+                    "Person with tax number '" + personRequestDto.getTaxNumber() + "' already exists");
         }
 
-        // Create person
-        Person person = PersonMapper.convertToEntity(personRequestDto);
-        Person savedPerson = personRepository.save(person);
+        // Create and send event
+        PersonEventDto event =
+                PersonEventDto.builder().action(PersonEventDto.Action.CREATE).personData(personRequestDto).build();
 
-        log.info("Person created successfully with ID '{}'.", savedPerson.getId());
-        return PersonMapper.convertToResponseDto(savedPerson);
+        personEventProducer.sendPersonEvent(event);
+        log.info("CREATE event sent to Kafka for person with tax number '{}'", personRequestDto.getTaxNumber());
     }
 
     @Transactional(readOnly = true)
@@ -69,7 +72,7 @@ public class PersonService {
         Page<Person> personPage = personRepository.findAll(specification, pageable);
         List<Person> persons = personPage.getContent();
 
-        log.info("All persons fetched successfully.");
+        log.info("All persons fetched successfully");
         return persons.stream().map(PersonMapper::convertToResponseDto).collect(Collectors.toList());
     }
 
@@ -84,7 +87,7 @@ public class PersonService {
         Page<Person> personPage = personRepository.findAll(personSpecification, pageable);
         List<Person> persons = personPage.getContent();
 
-        log.info("Fetching persons whose name starting with 'Mi' and older than 30 successfully.");
+        log.info("Persons whose name starting with 'Mi' and older than 30 fetched successfully");
         return persons.stream().map(PersonMapper::convertToResponseDto).collect(Collectors.toList());
     }
 
@@ -95,9 +98,9 @@ public class PersonService {
 
         // Fetch person by ID
         Person person = personRepository.findById(id)
-                .orElseThrow(() -> new PersonNotFoundException("Person not found with ID '" + id + "'."));
+                .orElseThrow(() -> new PersonNotFoundException("Person with ID '" + id + "' not found"));
 
-        log.info("Person fetch successfully with ID '{}'.", person.getId());
+        log.info("Person with ID '{}' fetched successfully", person.getId());
         return PersonMapper.convertToResponseDto(person);
     }
 
@@ -107,48 +110,76 @@ public class PersonService {
 
         // Fetch person by tax number
         Person person = personRepository.findByTaxNumber(taxNumber)
-                .orElseThrow(() -> new PersonNotFoundException(
-                        "Person not found with tax number '" + taxNumber + "'."));
+                .orElseThrow(() -> new PersonNotFoundException("Person with tax number '" + taxNumber + "' not found"));
 
-        log.info("Person fetch successfully with tax number '{}'.", person.getTaxNumber());
+        log.info("Person with tax number '{}' fetched successfully.", person.getTaxNumber());
         return PersonMapper.convertToResponseDto(person);
     }
 
     @Transactional
-    public PersonResponseDto updatePerson(Long id, PersonRequestDto personRequestDto) {
-        log.debug("Updating person with ID '{}'.", id);
+    public void updatePerson(Long id, PersonRequestDto personRequestDto) {
+        log.debug("Queueing update person with ID '{}' to Kafka...", id);
 
-        // Fetch existing person
+        // Validate before sending event
         Person existingPerson = personRepository.findById(id)
-                .orElseThrow(() -> new PersonNotFoundException("Person not found with ID '" + id + "'."));
-
-        // Ensure tax number is not being changed
+                .orElseThrow(() -> new PersonNotFoundException("Person with ID '" + id + "' not found"));
         if (!existingPerson.getTaxNumber().equals(personRequestDto.getTaxNumber())) {
-            throw new IllegalArgumentException("Tax number cannot be updated.");
+            throw new IllegalArgumentException("Tax number cannot be updated");
         }
 
-        // Update person properties
-        existingPerson.setFirstName(personRequestDto.getFirstName());
-        existingPerson.setLastName(personRequestDto.getLastName());
-        existingPerson.setDateOfBirth(personRequestDto.getDateOfBirth());
-        Person updatedPerson = personRepository.save(existingPerson);
+        // Create and send event
+        PersonEventDto event = PersonEventDto.builder()
+                .action(PersonEventDto.Action.UPDATE)
+                .personId(id)
+                .personData(personRequestDto)
+                .build();
 
-        log.info("Person updated successfully with ID '{}'.", updatedPerson.getId());
-        return PersonMapper.convertToResponseDto(updatedPerson);
+        personEventProducer.sendPersonEvent(event);
+        log.info("UPDATE event sent to Kafka for person with ID '{}'", id);
     }
 
     @Transactional
     public void deletePerson(Long id) {
-        log.debug("Deleting person with ID '{}'.", id);
+        log.debug("Queueing person deletion for ID '{}' to Kafka...", id);
 
-        // Check if person exists
+        // Validate before sending event
         if (!personRepository.existsById(id)) {
-            throw new PersonNotFoundException("Person not found with ID '" + id + "'.");
+            throw new PersonNotFoundException("Person with ID '" + id + "' not found");
         }
 
-        // Delete person
-        personRepository.deleteById(id);
+        // Create and send event
+        PersonEventDto event = PersonEventDto.builder().action(PersonEventDto.Action.DELETE).personId(id).build();
 
-        log.info("Person deleted successfully with ID '{}'.", id);
+        personEventProducer.sendPersonEvent(event);
+        log.info("DELETE event sent to Kafka for person with ID '{}'", id);
+    }
+
+    @Transactional
+    public void processPersonEvent(PersonEventDto event) {
+        log.debug("Processing database transaction for event: {}", event.getAction());
+
+        switch (event.getAction()) {
+            case CREATE -> {
+                Person person = PersonMapper.convertToEntity(event.getPersonData());
+                Person savedPerson = personRepository.save(person);
+                log.info("Database transaction successful: CREATED Person with ID '{}'", savedPerson.getId());
+            }
+            case UPDATE -> {
+                Person existingPerson = personRepository.findById(event.getPersonId())
+                        .orElseThrow(() -> new PersonNotFoundException(
+                                "Cannot update. Person not found with ID '" + event.getPersonId() + "'"));
+
+                existingPerson.setFirstName(event.getPersonData().getFirstName());
+                existingPerson.setLastName(event.getPersonData().getLastName());
+                existingPerson.setDateOfBirth(event.getPersonData().getDateOfBirth());
+                personRepository.save(existingPerson);
+                log.info("Database transaction successful: UPDATED Person with ID '{}'", event.getPersonId());
+            }
+            case DELETE -> {
+                personRepository.deleteById(event.getPersonId());
+                log.info("Database transaction successful: DELETED Person with ID '{}'", event.getPersonId());
+            }
+            default -> log.warn("Unknown event action received: {}", event.getAction());
+        }
     }
 }

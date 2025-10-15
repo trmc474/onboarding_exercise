@@ -24,29 +24,29 @@ import java.util.Map;
 @Slf4j
 @RestController
 @RequestMapping("/api/persons")
-@Tag(name = "Person", description = "API endpoints for person management.")
+@Tag(name = "Person", description = "API endpoints for person management")
 @RequiredArgsConstructor
 public class PersonController {
     private final PersonService personService;
 
     @PostMapping
     @Operation(summary = "Create Person")
-    public ResponseEntity<CustomApiResponse<PersonResponseDto>> createPerson(@Valid @RequestBody PersonRequestDto personRequestDto) {
+    public ResponseEntity<CustomApiResponse<Void>> createPerson(@Valid @RequestBody PersonRequestDto personRequestDto) {
         log.info("POST /api/persons - Create Person");
 
         // Create person
-        PersonResponseDto personResponseDto = personService.createPerson(personRequestDto);
+        personService.createPerson(personRequestDto);
 
         // Create API response
-        CustomApiResponse<PersonResponseDto> apiResponse = new CustomApiResponse<>(
+        CustomApiResponse<Void> apiResponse = new CustomApiResponse<>(
                 true,
-                HttpStatus.CREATED.value(),
-                "Person created successfully.",
-                personResponseDto,
+                HttpStatus.ACCEPTED.value(),
+                "Request to create person accepted and is being processed.",
+                null,
                 null
         );
 
-        return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
+        return new ResponseEntity<>(apiResponse, HttpStatus.ACCEPTED);
     }
 
     @GetMapping
@@ -107,14 +107,14 @@ public class PersonController {
     }
 
     @GetMapping("/search/mi-over-30")
-    @Operation(summary = "Get Persons Whose Name Starting with 'Mi' and Older Than 30.")
+    @Operation(summary = "Get Persons With 'Mi' Prefix and Older Than 30")
     public ResponseEntity<CustomApiResponse<List<PersonResponseDto>>> getPersonsWithMiAndOlderThan30(
             @RequestParam(defaultValue = "0") int pageNumber,
             @RequestParam(defaultValue = "10") int pageSize,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDirection
     ) {
-        log.info("GET /api/persons/search/mi-over-30 - Get Persons Whose Name Starting with 'Mi' and Older Than 30");
+        log.info("GET /api/persons/search/mi-over-30 - Get Persons With 'Mi' Prefix and Older Than 30");
 
         // Create Sort and Pageable objects
         Sort sort = Sort.by(Sort.Direction.fromString(sortDirection), sortBy);
@@ -134,7 +134,7 @@ public class PersonController {
         CustomApiResponse<List<PersonResponseDto>> apiResponse = new CustomApiResponse<>(
                 true,
                 HttpStatus.OK.value(),
-                "Persons whose name starting with 'Mi' and older than 30 fetched successfully.",
+                "Persons with 'Mi' prefix and older than 30 fetched successfully.",
                 personResponseDtos,
                 metadata
         );
@@ -184,25 +184,25 @@ public class PersonController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Update Person")
-    public ResponseEntity<CustomApiResponse<PersonResponseDto>> updatePerson(
+    public ResponseEntity<CustomApiResponse<Void>> updatePerson(
             @PathVariable Long id,
             @Valid @RequestBody PersonRequestDto personRequestDto
     ) {
         log.info("PUT /api/persons/{} - Update Person", id);
 
         // Update person
-        PersonResponseDto personResponseDto = personService.updatePerson(id, personRequestDto);
+        personService.updatePerson(id, personRequestDto);
 
         // Create API response
-        CustomApiResponse<PersonResponseDto> apiResponse = new CustomApiResponse<>(
+        CustomApiResponse<Void> apiResponse = new CustomApiResponse<>(
                 true,
-                HttpStatus.OK.value(),
-                "Person with ID '" + id + "' updated successfully.",
-                personResponseDto,
+                HttpStatus.ACCEPTED.value(),
+                "Request to update person with ID '" + id + "' accepted and is being processed.",
+                null,
                 null
         );
 
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK);
+        return new ResponseEntity<>(apiResponse, HttpStatus.ACCEPTED);
     }
 
     @DeleteMapping("/{id}")
@@ -216,12 +216,12 @@ public class PersonController {
         // Create API response
         CustomApiResponse<Void> apiResponse = new CustomApiResponse<>(
                 true,
-                HttpStatus.NO_CONTENT.value(),
-                "Person with ID '" + id + "' deleted successfully.",
+                HttpStatus.ACCEPTED.value(),
+                "Request to delete person with ID '" + id + "' accepted and is being processed.",
                 null,
                 null
         );
 
-        return new ResponseEntity<>(apiResponse, HttpStatus.NO_CONTENT);
+        return new ResponseEntity<>(apiResponse, HttpStatus.ACCEPTED);
     }
 }
