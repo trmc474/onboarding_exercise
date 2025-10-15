@@ -2,13 +2,14 @@ package com.netcompany.onboarding_exercise.repositories;
 
 import com.netcompany.onboarding_exercise.models.Person;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
 
 @Repository
-public interface PersonRepository extends JpaRepository<Person, Long> {
+public interface PersonRepository extends JpaRepository<Person, Long>, JpaSpecificationExecutor<Person> {
     /**
      * Find person by tax number
      *
