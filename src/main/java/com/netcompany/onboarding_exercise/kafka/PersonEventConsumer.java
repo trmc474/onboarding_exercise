@@ -13,7 +13,7 @@ import org.springframework.stereotype.Service;
 public class PersonEventConsumer {
     private final PersonService personService;
 
-    @KafkaListener(topics = "person.events", groupId = "person-events-group")
+    @KafkaListener(topics = "person.events", containerFactory = "personEventContainerFactory")
     public void consumePersonEvent(PersonEventDto event) {
         log.info("Consumed person event from Kafka - Action: {}, PersonID: {}", event.getAction(), event.getPersonId());
         try {

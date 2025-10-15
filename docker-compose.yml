@@ -64,6 +64,10 @@ services:
 
   app:
     build: .
+    develop:
+      watch:
+        - path: .
+          action: rebuild
     container_name: onboarding_exercise_app
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://onboarding_exercise_db:5432/${POSTGRES_DB}

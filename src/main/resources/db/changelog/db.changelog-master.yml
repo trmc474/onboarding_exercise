@@ -3,3 +3,5 @@ databaseChangeLog:
       file: db/changelog/changes/001-create-person-table.yml
   - include:
       file: db/changelog/changes/002-insert-mock-data.yml
+  - include:
+      file: db/changelog/changes/003-add-tax-debt-column.yml

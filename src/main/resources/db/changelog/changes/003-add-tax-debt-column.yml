@@ -1,0 +1,22 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-add-tax-debt-column
+      author: developer
+      changes:
+        - addColumn:
+            tableName: person
+            columns:
+              - column:
+                  name: tax_debt
+                  type: DECIMAL(19,2)
+                  defaultValueNumeric: 0.00
+                  constraints:
+                    nullable: false
+
+        - update:
+            tableName: person
+            columns:
+              - column:
+                  name: tax_debt
+                  valueNumeric: 0.00
+            where: tax_debt IS NULL

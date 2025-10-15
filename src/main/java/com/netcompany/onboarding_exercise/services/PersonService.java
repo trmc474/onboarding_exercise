@@ -182,4 +182,38 @@ public class PersonService {
             default -> log.warn("Unknown event action received: {}", event.getAction());
         }
     }
+
+    @Transactional
+    public void updateTaxDebt(String taxNumber, Double amount) {
+        log.debug("Updating tax debt for tax number '{}' with amount: {}", taxNumber, amount);
+
+        // Validate input
+        if (taxNumber == null || taxNumber.trim().isEmpty()) {
+            throw new IllegalArgumentException("Tax number cannot be null or empty");
+        }
+        if (amount == null) {
+            throw new IllegalArgumentException("Tax amount cannot be null");
+        }
+
+        // Find person by tax number
+        Person person = personRepository.findByTaxNumber(taxNumber)
+                .orElseThrow(() -> new PersonNotFoundException(
+                        "Cannot update tax debt. Person not found with tax number '" + taxNumber + "'."));
+
+        // Add the new amount to existing tax debt
+        Double currentDebt = person.getTaxDebt() != null ? person.getTaxDebt() : 0.0;
+        Double newDebt = currentDebt + amount;
+        person.setTaxDebt(newDebt);
+
+        // Save the updated person
+        personRepository.save(person);
+
+        log.info(
+                "Tax debt updated for person with tax number '{}'. Previous debt: {}, Added amount: {}, New debt: {}",
+                taxNumber,
+                currentDebt,
+                amount,
+                newDebt
+        );
+    }
 }
