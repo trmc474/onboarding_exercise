@@ -47,7 +47,6 @@ public class KafkaConsumerConfig {
         ConcurrentKafkaListenerContainerFactory<String, PersonEventDto> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(personEventConsumerFactory());
-        // NO batch configuration here - this is for single messages with @RetryableTopic
         return factory;
     }
 

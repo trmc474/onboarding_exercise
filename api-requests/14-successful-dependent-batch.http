@@ -1,0 +1,4 @@
+### POST request to test successful dependent batch processing
+POST http://localhost:8080/api/test/batch/dependent-batch?batchSize=3&failurePosition=-1
+
+###

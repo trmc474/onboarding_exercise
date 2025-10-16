@@ -1,0 +1,4 @@
+### POST request to test failed independent batch processing
+POST http://localhost:8080/api/test/batch/independent-batch?batchSize=5&failurePosition=2
+
+###
