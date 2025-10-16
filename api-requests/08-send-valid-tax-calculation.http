@@ -1,0 +1,4 @@
+### POST request to send valid tax calculation
+POST http://localhost:8080/api/test/kafka/send-valid-tax-event?taxNumber=123456789&amount=50.0
+
+###

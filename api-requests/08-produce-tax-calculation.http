@@ -1,9 +1,0 @@
-### Produce message for tax calculation
-http://localhost:8081/
-
-{
-  "taxId": "123456789",
-  "amount": 150.50
-}
-
-###

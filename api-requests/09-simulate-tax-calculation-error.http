@@ -1,0 +1,4 @@
+### POST request simulate tax calculation error
+POST http://localhost:8080/api/test/kafka/simulate-tax-error
+
+###
