@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
+import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import java.util.HashMap;
@@ -42,10 +43,37 @@ public class KafkaConsumerConfig {
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, PersonEventDto> personEventContainerFactory() {
+    public ConcurrentKafkaListenerContainerFactory<String, PersonEventDto> personEventSingleContainerFactory() {
         ConcurrentKafkaListenerContainerFactory<String, PersonEventDto> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(personEventConsumerFactory());
+        // NO batch configuration here - this is for single messages with @RetryableTopic
+        return factory;
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, PersonEventDto> personEventContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, PersonEventDto> factory =
+                new ConcurrentKafkaListenerContainerFactory<>();
+
+        // Use separate consumer factory for batch processing
+        Map<String, Object> batchConfig = baseConsumerConfig();
+        batchConfig.put(ConsumerConfig.GROUP_ID_CONFIG, "person-events-batch-group");
+        batchConfig.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+        batchConfig.put(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, 5);
+
+        JsonDeserializer<PersonEventDto> deserializer = new JsonDeserializer<>(PersonEventDto.class);
+        deserializer.setRemoveTypeHeaders(false);
+        deserializer.addTrustedPackages("*");
+        deserializer.setUseTypeMapperForKey(false);
+
+        ConsumerFactory<String, PersonEventDto> batchConsumerFactory =
+                new DefaultKafkaConsumerFactory<>(batchConfig, new StringDeserializer(), deserializer);
+
+        factory.setConsumerFactory(batchConsumerFactory);
+        factory.setBatchListener(true);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
+
         return factory;
     }
 

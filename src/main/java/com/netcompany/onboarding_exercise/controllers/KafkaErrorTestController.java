@@ -22,7 +22,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @Profile("!production")
 public class KafkaErrorTestController {
-
     private final KafkaTemplate<String, TaxCalculationEventDto> kafkaTemplate;
 
     @PostMapping("/simulate-tax-error")

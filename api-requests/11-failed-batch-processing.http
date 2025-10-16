@@ -1,0 +1,4 @@
+### POST request to test failed batch processing
+POST http://localhost:8080/api/test/batch/send-person-batch?batchSize=5&failurePosition=2
+
+###

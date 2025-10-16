@@ -26,6 +26,12 @@ spring:
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      enable-auto-commit: false
+      max-poll-records: 5
+    listener:
+      type: batch
+      ack-mode: manual_immediate
 
 springdoc:
   swagger-ui:

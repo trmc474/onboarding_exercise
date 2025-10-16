@@ -22,21 +22,21 @@ public class PersonEventConsumer {
             topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE, include = {
             DataAccessException.class, RuntimeException.class
     })
-    @KafkaListener(topics = "person.events", containerFactory = "personEventContainerFactory")
+    @KafkaListener(topics = "person.events", containerFactory = "personEventSingleContainerFactory")
     public void consumePersonEvent(PersonEventDto event) {
-        log.info("Processing person event - Action: {}, PersonID: {}", event.getAction(), event.getPersonId());
+        log.info("Processing single person event - Action: {}, PersonID: {}", event.getAction(), event.getPersonId());
 
         try {
             personService.processPersonEvent(event);
-            log.info("Successfully processed person event - Action: {}", event.getAction());
+            log.info("Successfully processed single person event");
         } catch (Exception exception) {
-            log.error("Error processing person event. Will retry if retriable: {}", exception.getMessage(), exception);
+            log.error("Error processing single person event. Will retry if retriable", exception);
             throw exception;
         }
     }
 
     @DltHandler
     public void handlePersonEventDlt(PersonEventDto event) {
-        log.error("Person event moved to Dead Letter Topic after all retries failed: {}", event);
+        log.error("Person event moved to Dead Letter Topic: {}", event);
     }
 }
