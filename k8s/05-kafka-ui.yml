@@ -36,4 +36,4 @@ spec:
             - name: KAFKA_CLUSTERS_0_NAME
               value: local-onboarding
             - name: KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS
-              value: kafka-service:29092
+              value: kafka-service:9092

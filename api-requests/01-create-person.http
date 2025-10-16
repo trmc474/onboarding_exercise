@@ -6,7 +6,7 @@ Content-Type: application/json
   "firstName": "Cuong",
   "lastName": "Tran",
   "dateOfBirth": "2004-07-04",
-  "taxNumber": "123123123123"
+  "taxNumber": "123123123"
 }
 
 ###

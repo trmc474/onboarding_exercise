@@ -19,7 +19,8 @@ public class TaxEventConsumer {
     private final PersonService personService;
 
     @RetryableTopic(attempts = "3", backoff = @Backoff(delay = 2000, multiplier = 1.5), autoCreateTopics = "true",
-            topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE, include = {
+            numPartitions = "1", replicationFactor = "1", topicSuffixingStrategy =
+            TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE, include = {
             DataAccessException.class, RuntimeException.class
     })
     @KafkaListener(topics = "tax.calculation", containerFactory = "taxEventContainerFactory")

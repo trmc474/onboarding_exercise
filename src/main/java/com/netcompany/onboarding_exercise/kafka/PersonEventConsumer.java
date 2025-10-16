@@ -19,7 +19,8 @@ public class PersonEventConsumer {
     private final PersonService personService;
 
     @RetryableTopic(attempts = "4", backoff = @Backoff(delay = 1000, multiplier = 2.0), autoCreateTopics = "true",
-            topicSuffixingStrategy = TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE, include = {
+            numPartitions = "1", replicationFactor = "1", topicSuffixingStrategy =
+            TopicSuffixingStrategy.SUFFIX_WITH_INDEX_VALUE, include = {
             DataAccessException.class, RuntimeException.class
     })
     @KafkaListener(topics = "person.events", containerFactory = "personEventSingleContainerFactory")

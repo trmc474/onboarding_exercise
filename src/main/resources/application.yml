@@ -32,6 +32,9 @@ spring:
     listener:
       type: batch
       ack-mode: manual_immediate
+    admin:
+      properties:
+        default.replication.factor: 1
 
 springdoc:
   swagger-ui:
